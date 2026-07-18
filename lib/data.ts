@@ -17,7 +17,7 @@ export const suggestions: Product[] = [
     name: "Thiéboudienne Penda Mbaye", 
     price: 3500, 
     rating: 4.9, 
-    image: "https://picsum.photos/seed/thieb/500/400", 
+    image: "/images/hero-teranga.png", 
     category: "Sénégalais",
     description: "Le plat national sénégalais emblématique. Riz rouge savoureux mijoté dans une sauce tomate riche, servi avec du thiof frais (mérou bronzé), manioc, carotte, chou et aubergine, agrémenté de piment et de beugue (feuilles de bissap de mer).",
     options: [{ name: "Sans piment", price: 0 }, { name: "Riz double", price: 500 }, { name: "Légumes supplémentaires", price: 300 }]
@@ -27,7 +27,7 @@ export const suggestions: Product[] = [
     name: "Yassa Poulet au Feu de Bois", 
     price: 3000, 
     rating: 4.8, 
-    image: "https://picsum.photos/seed/yassa/500/400", 
+    image: "/images/yassa.png", 
     category: "Sénégalais",
     description: "Poulet mariné au citron vert, ail, gingembre et moutarde, grillé au charbon de bois puis mijoté avec une abondance d'oignons caramélisés fondants, olives et piments doux. Servi avec du riz blanc parfumé.",
     options: [{ name: "Sans moutarde", price: 0 }, { name: "Poulet entier", price: 2500 }]
@@ -37,7 +37,7 @@ export const suggestions: Product[] = [
     name: "Dibi Mouton Traditionnel", 
     price: 6000, 
     rating: 4.7, 
-    image: "https://picsum.photos/seed/dibi/500/400", 
+    image: "/images/dibi.png", 
     category: "Grillades",
     description: "Morceaux de viande de mouton tendres assaisonnés de secret de cuisine locale, grillés à haute température sur de la braise ardente, servis sur du papier kraft avec des oignons croquants et une moutarde de piment d'Afrique.",
     options: [{ name: "Avec frites", price: 1000 }, { name: "Double oignons", price: 200 }]
@@ -47,7 +47,7 @@ export const suggestions: Product[] = [
     name: "Pastels de Poisson Dorés", 
     price: 1500, 
     rating: 4.6, 
-    image: "https://picsum.photos/seed/pastels/500/400", 
+    image: "/images/pastels.png", 
     category: "Sénégalais",
     description: "Beignets croustillants farcis d'une farce de poisson de roche épicée et parfumée à la coriandre locale, servis chauds accompagnés d'une sauce tomate-oignon légèrement piquante pour le dipping.",
     options: [{ name: "Sauce douce", price: 0 }]
@@ -77,8 +77,8 @@ export const suggestions: Product[] = [
 export const productDetail = suggestions[0];
 
 export const cartItems = [
-  { id: "thieb", name: "Thiéboudienne Penda Mbaye", variant: "Riz double, Sans piment", price: 4000, quantity: 1, image: "https://picsum.photos/seed/thieb/100/100" },
-  { id: "pastels", name: "Pastels de Poisson", variant: "Sauce douce", price: 1500, quantity: 2, image: "https://picsum.photos/seed/pastels/100/100" },
+  { id: "thieb", name: "Thiéboudienne Penda Mbaye", variant: "Riz double, Sans piment", price: 4000, quantity: 1, image: "/images/hero-teranga.png" },
+  { id: "pastels", name: "Pastels de Poisson", variant: "Sauce douce", price: 1500, quantity: 2, image: "/images/pastels.png" },
   { id: "bissap", name: "Jus de Bissap Royal", variant: "Format standard", price: 1000, quantity: 2, image: "https://picsum.photos/seed/bissap/100/100" },
 ];
 
