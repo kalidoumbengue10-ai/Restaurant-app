@@ -13,11 +13,11 @@ export function WorkspaceWrapper({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!mounted) {
-    return <div className="bg-[#FFF8ED] min-h-screen">{children}</div>;
+    return <div className="bg-background min-h-screen">{children}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8ED] font-body flex flex-col w-full">
+    <div className="min-h-screen bg-background font-body flex flex-col w-full">
       <div className="flex-1 w-full relative">
         {children}
       </div>

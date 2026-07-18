@@ -1,148 +1,327 @@
 "use client";
-import { useState, useEffect } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence } from "motion/react";
-import { Heart, Star, Bell, MapPin, Search, Utensils } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
-import { SplashScreen } from "@/components/SplashScreen";
-import { categories, suggestions } from "@/lib/data";
-import { formatPrice } from "@/lib/utils";
+import { useState } from "react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  ChevronDown,
+  MapPin,
+  Menu,
+  Phone,
+  X,
+} from "lucide-react";
+
+const dishes = [
+  {
+    id: "thieb",
+    index: "01",
+    name: "Ceebu jën",
+    description: "Riz rouge, poisson et légumes mijotés — le grand plat de la table sénégalaise.",
+    price: "3 500 FCFA",
+    image: "/images/hero-teranga.png",
+  },
+  {
+    id: "yassa",
+    index: "02",
+    name: "Yassa poulet",
+    description: "Poulet braisé, citron et oignons fondants, servi avec son riz blanc.",
+    price: "3 000 FCFA",
+    image: "/images/yassa.png",
+  },
+  {
+    id: "dibi",
+    index: "03",
+    name: "Dibi mouton",
+    description: "Mouton saisi au feu, oignons frais et moutarde relevée.",
+    price: "6 000 FCFA",
+    image: "/images/dibi.png",
+  },
+  {
+    id: "pastels",
+    index: "04",
+    name: "Pastels de poisson",
+    description: "Petits chaussons dorés, farce de poisson et sauce tomate maison.",
+    price: "1 500 FCFA",
+    image: "/images/pastels.png",
+  },
+];
+
+const steps = [
+  ["01", "Choisissez votre plat", "Parcourez les recettes et leurs options."],
+  ["02", "Précisez votre envie", "Ajoutez vos préférences depuis la fiche du plat."],
+  ["03", "Validez la commande", "Choisissez livraison, à emporter ou sur place."],
+  ["04", "Passez à table", "Suivez la préparation depuis votre espace commande."],
+];
+
+const faqs = [
+  {
+    question: "Peut-on commander en livraison ?",
+    answer: "Oui, l’application prévoit la livraison à Dakar. La zone exacte et les délais seront à confirmer avec le restaurant.",
+  },
+  {
+    question: "Comment signaler une allergie ?",
+    answer: "Indiquez votre allergie dans les préférences de commande et confirmez-la directement avec l’équipe avant validation.",
+  },
+  {
+    question: "Peut-on commander pour un groupe ?",
+    answer: "Une commande de groupe est possible depuis la carte. Pour une privatisation ou un grand volume, les conditions restent à confirmer.",
+  },
+  {
+    question: "Quels moyens de paiement sont proposés ?",
+    answer: "Le parcours actuel prévoit Wave, Orange Money, Free Money et le paiement en espèces selon le mode de retrait choisi.",
+  },
+];
+
+function ArrowButton({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <span className={`pill-button ${light ? "pill-button--light" : ""}`}>
+      <span>{children}</span>
+      <span className="pill-button__icon" aria-hidden="true"><ArrowUpRight size={14} /></span>
+    </span>
+  );
+}
+
+function SectionLabel({ number, children, aside }: { number: string; children: React.ReactNode; aside?: string }) {
+  return (
+    <div className="section-label">
+      <div><span className="section-label__dot" /><span>{number} — {children}</span></div>
+      {aside && <span className="section-label__aside">{aside}</span>}
+    </div>
+  );
+}
 
 export default function Home() {
-  const [showSplash, setShowSplash] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("Tout");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const filteredSuggestions = suggestions.filter((item) => {
-    const matchesCategory = activeCategory === "Tout" || item.category === activeCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-background pb-28 relative overflow-x-hidden w-full h-full flex flex-col justify-between">
-      <AnimatePresence>
-        {showSplash && <SplashScreen key="splash" />}
-      </AnimatePresence>
+    <main id="top" className="restaurant-page">
+      <header className="site-header">
+        <Link href="#top" className="brand-mark" onClick={closeMenu} aria-label="Kër Ndar, retour en haut">
+          <span>Kër</span><span>Ndar</span>
+        </Link>
 
-      <div className="flex-1">
-        {/* Header with Senegal location */}
-        <header className="px-4 pt-8 pb-4 flex justify-between items-center bg-background z-10 sticky top-0 border-b border-border/20">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <MapPin size={20} />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block">Livrer à</span>
-              <span className="text-sm font-bold text-foreground">Dakar Plateau, Sénégal 🇸🇳</span>
-            </div>
+        <nav className="desktop-nav" aria-label="Navigation principale">
+          <Link href="#carte">La carte</Link>
+          <Link href="#experience">L’expérience</Link>
+          <Link href="#maison">La maison</Link>
+          <Link href="#questions">Questions</Link>
+        </nav>
+
+        <div className="header-actions">
+          <a href="#contact" className="header-icon" aria-label="Voir les informations de contact"><Phone size={15} /></a>
+          <Link href="/explore"><ArrowButton light>Commander mon repas</ArrowButton></Link>
+        </div>
+
+        <button
+          className="mobile-menu-button"
+          onClick={() => setMenuOpen((value) => !value)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+        >
+          {menuOpen ? <X size={19} /> : <Menu size={19} />}
+        </button>
+
+        <nav id="mobile-navigation" className={`mobile-nav ${menuOpen ? "is-open" : ""}`} aria-label="Navigation mobile">
+          <Link href="#carte" onClick={closeMenu}>La carte</Link>
+          <Link href="#experience" onClick={closeMenu}>L’expérience</Link>
+          <Link href="#maison" onClick={closeMenu}>La maison</Link>
+          <Link href="#questions" onClick={closeMenu}>Questions</Link>
+          <Link href="/explore" onClick={closeMenu}><ArrowButton>Commander mon repas</ArrowButton></Link>
+        </nav>
+      </header>
+
+      <section className="hero" aria-labelledby="hero-title">
+        <Image src="/images/hero-teranga.png" alt="Grand plat de ceebu jën dressé sur une table chaleureuse à Dakar" fill priority sizes="100vw" className="cover-image" />
+        <div className="hero__veil" />
+        <div className="hero-proof">
+          <span className="hero-proof__seal">KN</span>
+          <span>Carte sénégalaise<br />Dakar · Sénégal</span>
+        </div>
+        <div className="hero__content">
+          <p className="eyebrow">Cuisine sénégalaise · Table contemporaine</p>
+          <h1 id="hero-title">Le Sénégal<br />se met à table.</h1>
+          <div className="hero__actions">
+            <Link href="/explore"><ArrowButton light>Commander mon repas</ArrowButton></Link>
+            <Link href="#carte" className="text-link text-link--light">Voir les plats <ArrowDown size={15} /></Link>
           </div>
-          <button className="w-10 h-10 rounded-full bg-surface-elevated shadow-sm flex items-center justify-center border border-border text-foreground hover:text-primary transition-colors">
-            <Bell size={20} />
-          </button>
-        </header>
+        </div>
+        <a href="#introduction" className="scroll-cue">Défiler <ArrowDown size={14} /></a>
+      </section>
 
-        <main className="px-4 flex flex-col gap-6 mt-4">
-          
-          {/* Welcome Text */}
+      <section id="introduction" className="section-shell intro-section">
+        <SectionLabel number="01" aside="Dakar, Sénégal">La table</SectionLabel>
+        <p className="intro-statement">
+          Des recettes qui prennent leur temps, des produits qui ont du goût et une table pensée pour <span className="circled-word">partager</span> — ici, la <span className="circled-word circled-word--dark">teranga</span> se commande <em>sans attendre.</em>
+        </p>
+        <div className="trust-strip" aria-label="Services proposés">
+          <span>Cuisine sénégalaise</span>
+          <span>Paiement local</span>
+          <span>Sur place · À emporter</span>
+          <span>Livraison à Dakar</span>
+        </div>
+      </section>
+
+      <section id="carte" className="section-shell menu-section">
+        <div className="section-intro">
           <div>
-            <h1 className="text-2xl font-bold font-display text-foreground leading-tight">
-              Bonjour, <span className="text-primary">Julie !</span>
-            </h1>
-            <p className="text-xs text-text-secondary mt-1">Prête pour le meilleur de la Teranga culinaire ?</p>
+            <SectionLabel number="02">Les incontournables</SectionLabel>
+            <h2>Quatre façons<br />de commencer.</h2>
           </div>
+          <p>Une sélection courte de plats emblématiques déjà disponibles dans l’application. Les visuels proposés partagent la même lumière et le même geste éditorial.</p>
+        </div>
 
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
-            <input 
-              type="text" 
-              placeholder="Rechercher Thiéboudienne, Yassa, Pastels..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-surface-elevated text-sm font-medium text-foreground placeholder:font-normal placeholder:text-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
-            />
-          </div>
+        <div className="dish-grid">
+          {dishes.map((dish) => (
+            <Link href={`/product/${dish.id}`} key={dish.id} className="dish-card" aria-label={`${dish.name}, ${dish.price}`}>
+              <Image src={dish.image} alt={dish.name} fill sizes="(max-width: 800px) 84vw, 25vw" className="cover-image" />
+              <span className="dish-card__shade" />
+              <div className="dish-card__content">
+                <span className="dish-card__index">{dish.index} · {dish.price}</span>
+                <h3>{dish.name}</h3>
+                <p>{dish.description}</p>
+              </div>
+              <span className="dish-card__action"><ArrowUpRight size={15} /></span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-          {/* Promo Card - Dakar Style */}
-          <div className="bg-secondary text-foreground rounded-2xl p-5 relative overflow-hidden flex items-center shadow-sm">
-            <div className="z-10 w-3/5">
-              <h2 className="text-4xl font-display font-extrabold tracking-tight mb-1">-40%</h2>
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/80 mb-2">Offre de bienvenue</p>
-              <p className="text-sm font-bold mb-3">sur votre première commande locale !</p>
-            </div>
-            <div className="absolute -right-8 top-1/2 -translate-y-1/2 w-40 h-40 rounded-full overflow-hidden border-4 border-white/20">
-               <Image src="https://picsum.photos/seed/promo-thieb/400/400" alt="Promo" fill className="object-cover" referrerPolicy="no-referrer" />
-            </div>
-          </div>
-
-          {/* Category Selector */}
+      <section id="experience" className="section-shell proof-section">
+        <div className="section-intro section-intro--compact">
           <div>
-            <h2 className="text-base font-bold font-display mb-3">Catégories gourmandes</h2>
-            <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-4 px-4 pb-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`whitespace-nowrap px-4 py-2.5 rounded-full text-xs font-bold transition-colors shadow-sm ${
-                    activeCategory === cat
-                      ? "bg-primary text-white"
-                      : "bg-surface-elevated text-foreground border border-border hover:bg-surface-subtle"
-                  }`}
-                >
-                  {cat}
-                </button>
+            <SectionLabel number="03">Le goût en deux temps</SectionLabel>
+            <h2>Généreux de loin.<br />Précis de près.</h2>
+          </div>
+          <p>Un plat sénégalais se découvre d’abord dans son ensemble, puis dans les détails de cuisson, de sauce et de texture.</p>
+        </div>
+        <div className="proof-pair">
+          <figure className="proof-panel">
+            <Image src="/images/hero-teranga.png" alt="Le ceebu jën présenté comme un plat à partager" fill sizes="(max-width: 800px) 100vw, 50vw" className="cover-image" />
+            <figcaption><span>01</span><strong>Le plat à partager</strong><small>La générosité du service</small></figcaption>
+          </figure>
+          <span className="proof-pair__badge" aria-hidden="true"><ArrowRight size={17} /></span>
+          <figure className="proof-panel">
+            <Image src="/images/yassa.png" alt="Détail d’un yassa poulet aux oignons fondants" fill sizes="(max-width: 800px) 100vw, 50vw" className="cover-image" />
+            <figcaption><span>02</span><strong>Le détail qui compte</strong><small>La texture, le feu, la sauce</small></figcaption>
+          </figure>
+        </div>
+        <p className="image-note">Images d’ambiance créées pour cette proposition — photographies définitives de la maison à confirmer.</p>
+      </section>
+
+      <section className="process-section">
+        <div className="section-shell">
+          <SectionLabel number="04" aside="Simple, du plat au panier">Votre commande</SectionLabel>
+          <div className="process-grid">
+            <div className="process-copy">
+              <p className="eyebrow">À votre rythme</p>
+              <h2>Votre repas,<br />en quatre gestes.</h2>
+              <p>La carte donne envie. Le parcours fait le reste, de la sélection jusqu’au suivi de la préparation.</p>
+              <Link href="/explore"><ArrowButton light>Commander mon repas</ArrowButton></Link>
+            </div>
+            <ol className="steps-list">
+              {steps.map(([index, title, description]) => (
+                <li key={index}>
+                  <span className="step-index">{index}</span>
+                  <span><strong>{title}</strong><small>{description}</small></span>
+                  <ArrowUpRight size={19} />
+                </li>
               ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="maison" className="section-shell about-section">
+        <SectionLabel number="05" aside="La maison">Derrière l’assiette</SectionLabel>
+        <div className="about-grid">
+          <div className="about-image">
+            <Image src="/images/chef.png" alt="Chef sénégalais terminant le dressage d’un plat en cuisine" fill sizes="(max-width: 800px) 100vw, 55vw" className="cover-image" />
+          </div>
+          <div className="about-copy">
+            <p className="eyebrow eyebrow--dark">Le geste avant le décor</p>
+            <h2>Une cuisine d’ici, servie maintenant.</h2>
+            <p>Le concept Kër Ndar met les recettes sénégalaises au premier plan, dans une expérience directe, visuelle et facile à commander. Le nom, le lieu précis et l’identité de l’équipe restent personnalisables avec vos informations réelles.</p>
+            <div className="fact-grid">
+              <div><span>La carte</span><strong>Recettes sénégalaises</strong></div>
+              <div><span>Le service</span><strong>Détails à confirmer</strong></div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Suggestions - Dakar Food Grid */}
-          <div className="pb-10">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold font-display">Nos suggestions</h2>
-              <span className="text-xs font-bold text-text-muted">{filteredSuggestions.length} plats trouvés</span>
-            </div>
+      <section className="human-proof">
+        <Image src="/images/chef.png" alt="Geste du chef dans une cuisine chaleureuse" fill sizes="100vw" className="cover-image" />
+        <div className="human-proof__veil" />
+        <div className="quote-card">
+          <span className="quote-mark" aria-hidden="true">“</span>
+          <blockquote>Nous voulons que chaque plat retrouve le goût du partage, même lorsqu’il arrive dans une seule assiette.</blockquote>
+          <p>Principe de la maison · proposition éditoriale</p>
+          <Link href="/explore"><ArrowButton>Commander mon repas</ArrowButton></Link>
+        </div>
+      </section>
 
-            {filteredSuggestions.length === 0 ? (
-              <div className="text-center py-8 bg-surface-elevated rounded-2xl border border-border">
-                <Utensils className="mx-auto text-text-muted mb-2 animate-pulse" size={32} />
-                <p className="text-xs font-bold text-text-muted">Aucun plat ne correspond à votre recherche.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {filteredSuggestions.map((item) => (
-                  <Link href={`/product/${item.id}`} key={item.id} className="bg-surface-elevated rounded-[18px] p-3 shadow-sm border border-border flex flex-col justify-between gap-3 relative hover:scale-[1.01] transition-transform">
-                    <button className="absolute top-5 right-5 z-10 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center text-text-muted hover:text-primary transition-colors shadow-sm">
-                      <Heart size={16} />
-                    </button>
-                    <div className="relative w-full aspect-[4/3] rounded-[14px] overflow-hidden bg-surface-strong">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" referrerPolicy="no-referrer" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-[14px] text-foreground leading-snug mb-1 line-clamp-2 min-h-[40px]">{item.name}</h3>
-                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-border/30">
-                        <span className="font-bold text-xs text-primary">{formatPrice(item.price)} FCFA</span>
-                        <div className="flex items-center gap-1 text-secondary">
-                          <Star size={12} fill="currentColor" />
-                          <span className="text-[11px] font-bold text-foreground">{item.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+      <section id="questions" className="section-shell faq-section">
+        <SectionLabel number="06" aside="Avant de commander">Questions fréquentes</SectionLabel>
+        <div className="faq-grid">
+          <div>
+            <p className="eyebrow eyebrow--dark">Tout est clair</p>
+            <h2>Les réponses<br />avant la faim.</h2>
           </div>
-        </main>
-      </div>
+          <div className="accordion">
+            {faqs.map((item, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <div className={`faq-item ${isOpen ? "is-open" : ""}`} key={item.question}>
+                  <button onClick={() => setOpenFaq(isOpen ? -1 : index)} aria-expanded={isOpen} aria-controls={`faq-answer-${index}`}>
+                    <span>{item.question}</span><ChevronDown size={18} />
+                  </button>
+                  <div id={`faq-answer-${index}`} className="faq-answer" aria-hidden={!isOpen}><p>{item.answer}</p></div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-      <BottomNav />
-    </div>
+      <section id="contact" className="final-cta">
+        <Image src="/images/hero-teranga.png" alt="Table sénégalaise prête à accueillir les convives" fill sizes="100vw" className="cover-image" />
+        <div className="final-cta__veil" />
+        <div className="final-cta__content">
+          <p className="eyebrow">La table est prête</p>
+          <h2>Choisissez ce qui<br />vous fait envie.</h2>
+          <div className="final-cta__actions">
+            <Link href="/explore"><ArrowButton light>Commander mon repas</ArrowButton></Link>
+            <a href="#footer-contact" className="text-link text-link--light">Voir les informations <ArrowDown size={15} /></a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="site-footer">
+        <div className="section-shell">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <Link href="#top" className="brand-mark brand-mark--footer"><span>Kër</span><span>Ndar</span></Link>
+              <p>Les grandes recettes sénégalaises,<br />servies avec simplicité.</p>
+            </div>
+            <div id="footer-contact" className="contact-card">
+              <span>Informations pratiques</span>
+              <h3>Adresse et horaires<br />à confirmer.</h3>
+              <div><MapPin size={17} /><p>Dakar, Sénégal<br /><small>Localisation précise à renseigner</small></p></div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <span>© 2026 Kër Ndar — concept de démonstration</span>
+            <div><Link href="#carte">La carte</Link><Link href="#questions">Questions</Link><Link href="/login">Espace équipe</Link></div>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
